@@ -12,9 +12,19 @@ from azure.search.documents.indexes.models import (
 )
 
 # Configurações do Azure Search
-service_endpoint = os.environ.get("AZURE_SEARCH_ENDPOINT")
-admin_key = os.environ.get("AZURE_SEARCH_ADMIN_KEY")
-index_name = os.environ.get("AZURE_SEARCH_INDEX_NAME")
+# service_endpoint = os.environ.get("AZURE_SEARCH_ENDPOINT")
+# admin_key = os.environ.get("AZURE_SEARCH_ADMIN_KEY")
+# index_name = os.environ.get("AZURE_SEARCH_INDEX_NAME")
+
+service_endpoint = "https://hackathon-fase-cinco-grupo-dezenove-rag.search.windows.net"
+admin_key = "LQs2MMwot4X1VONayHbBb4lZDdKUMznYfnKXrzwp0IAzSeAO4QV4"
+index_name = "stride-documentation-index"
+
+search_client = SearchClient(
+    endpoint=service_endpoint,
+    index_name=index_name,
+    credential=AzureKeyCredential(admin_key)
+)
 
 def criar_indice_se_nao_existe():
     """Cria o índice de pesquisa caso não exista."""
@@ -101,12 +111,6 @@ def indexar_documentacao():
     """Função principal para indexar a documentação STRIDE."""
     criar_indice_se_nao_existe()
 
-    search_client = SearchClient(
-        endpoint=service_endpoint,
-        index_name=index_name,
-        credential=AzureKeyCredential(admin_key)
-    )
-
     urls = carregar_urls()
     print(f"Processando {len(urls)} URLs...")
 
@@ -124,4 +128,19 @@ def indexar_documentacao():
         print("Nenhum documento para indexar.")
 
 if __name__ == "__main__":
-    indexar_documentacao()
+    #indexar_documentacao()
+
+    # Realizar a pesquisa
+    results = search_client.search("Threat")
+
+    # Iterar sobre os resultados
+    for document in results:
+        # Verificar quais campos estão disponíveis (útil para debug)
+        print("Campos disponíveis:", document.keys())
+
+        # Acessar os campos do documento
+        print(f"ID: {document['id']}")
+        print(f"Título: {document['titulo'] if 'titulo' in document else document.get('title', 'N/A')}")
+        print(f"Conteúdo: {document['conteudo'] if 'conteudo' in document else document.get('content', 'N/A')}")
+        print(f"URL: {document['url']}")
+        print("-------------------")
