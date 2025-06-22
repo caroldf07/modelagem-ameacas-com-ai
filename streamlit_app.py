@@ -17,6 +17,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 if not openai_api_key:
     openai_api_key = st.text_input("OpenAI API Key", type="password")
     st.info("Insira sua OpenAI API key para continuar", icon="🗝️")
+    st.info("Importante que a sua chave tenha acesso ao modelo `o4-mini-2025-04-16`", icon="ℹ️")
 else:
     # Create an OpenAI client.
     client = OpenAI(api_key=openai_api_key)

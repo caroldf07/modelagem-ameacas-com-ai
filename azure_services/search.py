@@ -17,20 +17,20 @@ from azure.search.documents.indexes.models import (
 # index_name = os.environ.get("AZURE_SEARCH_INDEX_NAME")
 
 service_endpoint = "https://hackathon-fase-cinco-grupo-dezenove-rag.search.windows.net"
-admin_key = "LQs2MMwot4X1VONayHbBb4lZDdKUMznYfnKXrzwp0IAzSeAO4QV4"
+admin = "LQs2MMwot4X1VONayHbBb4lZDdKUMznYfnKXrzwp0IAzSeAO4QV4"
 index_name = "stride-documentation-index"
 
 search_client = SearchClient(
     endpoint=service_endpoint,
     index_name=index_name,
-    credential=AzureKeyCredential(admin_key)
+    credential=AzureKeyCredential(admin)
 )
 
 def criar_indice_se_nao_existe():
     """Cria o índice de pesquisa caso não exista."""
     index_client = SearchIndexClient(
         endpoint=service_endpoint,
-        credential=AzureKeyCredential(admin_key)
+        credential=AzureKeyCredential(admin)
     )
 
     if index_name not in [index for index in index_client.list_index_names()]:
