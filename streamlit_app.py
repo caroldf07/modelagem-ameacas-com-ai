@@ -1,7 +1,9 @@
 import streamlit as st
-from openai import OpenAI
-import os
-import base64
+import json
+
+from azure_services import search
+from openai_services import ai_flow
+
 
 # Show title and description.
 st.title("📄 Análise de Vulnerabilidade em Arquitetura de Software")
@@ -12,7 +14,8 @@ st.write(
 # Ask user for their OpenAI API key via `st.text_input`.
 # Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
 # via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = os.getenv("OPENAI_API_KEY")
+openai_api_key = ""
+
 
 if not openai_api_key:
     openai_api_key = st.text_input("OpenAI API Key", type="password")
@@ -20,45 +23,57 @@ if not openai_api_key:
     st.info("Importante que a sua chave tenha acesso ao modelo `o4-mini-2025-04-16`", icon="ℹ️")
 else:
     # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+    
+    chat = ai_flow.Chat(openai_api_key, model="o4-mini-2025-04-16")
 
     # Let the user upload a file via `st.file_uploader`.
-    uploaded_file = st.file_uploader(
+    arquitetura = st.file_uploader(
         "Faça o upload da sua arquitetura (.pdf/.jpeg/.png)", type=("pdf", "jpeg", "png")
     )
 
-    if uploaded_file:
+    if arquitetura:
 
-        # Process the uploaded file and question.
-        document = base64.b64encode(uploaded_file.read()).decode("utf-8")
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {"type":"text", "text": f""" Você é um agente especialista em arquitetura de sistemas e irá receber uma imagem de arquitetura para análise geral.
-                     Seus objetivos são:
-                     1. Interpretar a arquitetura e montar uma lista de componentes de cada elemento presente na imagem. Exemplo: AWS - S3, AWS - EC2, AWS - ECR, AWS - Lambda
-                     2. Explicar o que cada componente faz. Exemplo: AWS - S3 : Storage em nuvem de arquivos... 
-                     3. Explicar o fluxo da aplicação apresentada. Sendo a imagem da architetura: {uploaded_file.name}"""
-                    },
-                     {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{document}",
-                            },
-                    },
-                ]
-            }
-        ]        
-        with st.spinner('Analisando arquitetura... Por favor, aguarde.'):
-            stream = client.chat.completions.create(
-                model="o4-mini-2025-04-16",
-                messages=messages,
-            )
         
+        with st.spinner('Analisando arquitetura... Por favor, aguarde.'):
+            response = chat.read_architecture(arquitetura)  
+            try:
+                resultado = json.loads(response)
+            except json.JSONDecodeError as e:
+                st.error("Erro ao converter resposta para JSON.")
+                st.text(response)  # Mostra o conteúdo bruto para depurar
+                raise e
+        
+        st.subheader("📦 Componentes Identificados")
+        st.write(resultado.get("componentes_identificados", []))
+
+        st.subheader("🧠 Descrição dos Componentes")
+        for componente, descricao in resultado.get("descricao_componentes", {}).items():
+            st.markdown(f"**{componente}**: {descricao}")
+
+        st.subheader("🔁 Fluxo da Aplicação")
+        st.write(resultado.get("fluxo_aplicacao", "Fluxo não identificado."))
+                    
         # TODO: Alterar o prompt para que o retorno seja no formato que a lib de análise da OWASP precisa pra rodar.
         # TODO: Alterar o retorno para trazer o relatório de vulnerabilidades usando a metodologia STRIDE como base.
         # TODO: Incluir botão para download do relatório gerado em pdf.
         
-        st.write(stream.choices[0].message.content)
         st.success("Análise concluída com sucesso!", icon="✅")
+
+        with st.spinner('Analisando risco baseado na metodologia OWASP... Por favor, aguarde.'):
+
+            search_rag = search.Search()
+        
+            response = search_rag.search_topic("Threat")
+
+            st.subheader("Resultados da busca:")
+            for item in response:
+                with st.expander(f"📄 {item['titulo']}"):
+                    st.write(f"**ID:** {item['id']}")
+                    st.write(f"**Conteúdo:** {item['conteudo']}")
+                    st.markdown(f"[🔗 Acessar documento]({item['url']})", unsafe_allow_html=True)
+
+
+
+
+
+
