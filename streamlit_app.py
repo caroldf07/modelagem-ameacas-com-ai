@@ -17,20 +17,28 @@ st.write(
 openai_api_key = ""
 
 
-if not openai_api_key:
-    openai_api_key = st.text_input("OpenAI API Key", type="password")
+# Campo para a chave, salva na sessão
+if "openai_api_key" not in st.session_state:
+    st.session_state["openai_api_key"] = ""
+
+# Campo de entrada para a chave
+if not st.session_state["openai_api_key"]:
+    api_key = st.text_input("OpenAI API Key", type="password")
     st.info("Insira sua OpenAI API key para continuar", icon="🗝️")
     st.info("Importante que a sua chave tenha acesso ao modelo `o4-mini-2025-04-16`", icon="ℹ️")
-else:
-    # Create an OpenAI client.
-    
-    chat = ai_flow.Chat(openai_api_key, model="o4-mini-2025-04-16")
 
-    # Let the user upload a file via `st.file_uploader`.
+    # Atualiza a sessão quando o usuário digita
+    if api_key:
+        st.session_state["openai_api_key"] = api_key
+        st.rerun()
+else:
+    # Cria o cliente
+    chat = ai_flow.Chat(st.session_state["openai_api_key"], model="o4-mini-2025-04-16")
+
+    # Upload da arquitetura
     arquitetura = st.file_uploader(
         "Faça o upload da sua arquitetura (.pdf/.jpeg/.png)", type=("pdf", "jpeg", "png")
     )
-
     if arquitetura:
 
         
@@ -59,7 +67,7 @@ else:
         
         st.success("Análise concluída com sucesso!", icon="✅")
 
-        with st.spinner('Analisando risco baseado na metodologia OWASP... Por favor, aguarde.'):
+        with st.spinner('Analisando itens de risco baseado na metodologia OWASP... Por favor, aguarde.'):
 
             search_rag = search.Search()
         
@@ -71,6 +79,22 @@ else:
                     st.write(f"**ID:** {item['id']}")
                     st.write(f"**Conteúdo:** {item['conteudo']}")
                     st.markdown(f"[🔗 Acessar documento]({item['url']})", unsafe_allow_html=True)
+
+            docs_para_analise = []
+            docs_para_analise.append({
+                "id": item["id"],
+                "conteudo": item["conteudo"]
+            })
+            
+
+            resultado_items = chat.check_vulnerability_per_item("items", docs_para_analise)
+            with st.expander(f"🔍 Resultado da Análise item a item"):
+                st.write(resultado_items)
+
+            resultado_flow = chat.check_vulnerability_per_item("data-flow", docs_para_analise)
+            with st.expander(f"🔍 Resultado da Análise do fluxo de dados"):
+                st.write(resultado_flow)
+        
 
 
 

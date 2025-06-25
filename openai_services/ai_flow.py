@@ -63,8 +63,62 @@ class Chat:
         response = stream.choices[0].message.content
         return response
     
-    def check_vulnerability_per_item(self):
-        pass
-    
-    def check_vulnerability_data_flow(self):
-        pass
+    def check_vulnerability_per_item(self, analysis_type, content):
+
+        """
+        Faz análise STRIDE baseada em conteúdo retornado da busca.
+        
+        Parâmetros:
+            analysis_type (str): 'items' ou 'data-flow'
+            content (list[dict]): Lista com chaves 'id' e 'conteudo'
+        """
+        # Construir string formatada para o prompt
+        blocos_documento = []
+        for doc in content:
+            bloco = f"### Documento: {doc['id']}\n{doc['conteudo']}\n"
+            blocos_documento.append(bloco)
+
+        content_string = "\n---\n".join(blocos_documento)
+
+        prompt = f"""
+            Você está prestes a realizar uma análise de segurança com base nos documentos da OWASP relacionados à metodologia STRIDE.
+
+            Abaixo estão os documentos relevantes que contêm diretrizes sobre ameaças e mitigações:
+
+            {content_string}
+
+            Existem dois tipos de análise possíveis (entre parênteses está o parâmetro da análise):
+            1. Item a item, analisando cada componente isolado da arquitetura. (`items`)
+            2. Análise do fluxo de dados entre componentes. (`data-flow`)
+
+            Com base no conteúdo acima, realize a análise do tipo **{analysis_type}** e forneça:
+            - As ameaças STRIDE relevantes
+            - As justificativas técnicas
+            - Recomendações de mitigação
+            - E, se possível, uma organização em tópicos por componente ou interação.
+        """
+
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt
+                    }
+                ]
+            }
+        ]
+        stream = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+            )
+        
+        response = stream.choices[0].message.content
+        return response
+
+
+
+        
+
+        
