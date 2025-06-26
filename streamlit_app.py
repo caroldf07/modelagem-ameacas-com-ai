@@ -40,8 +40,6 @@ else:
         "Faça o upload da sua arquitetura (.pdf/.jpeg/.png)", type=("pdf", "jpeg", "png")
     )
     if arquitetura:
-
-        
         with st.spinner('Analisando arquitetura... Por favor, aguarde.'):
             response = chat.read_architecture(arquitetura)  
             try:
@@ -60,17 +58,12 @@ else:
 
         st.subheader("🔁 Fluxo da Aplicação")
         st.write(resultado.get("fluxo_aplicacao", "Fluxo não identificado."))
-                    
-        # TODO: Alterar o prompt para que o retorno seja no formato que a lib de análise da OWASP precisa pra rodar.
-        # TODO: Alterar o retorno para trazer o relatório de vulnerabilidades usando a metodologia STRIDE como base.
-        # TODO: Incluir botão para download do relatório gerado em pdf.
-        
-        st.success("Análise concluída com sucesso!", icon="✅")
 
-        with st.spinner('Analisando itens de risco baseado na metodologia OWASP... Por favor, aguarde.'):
+        st.success("Análise da arquitetura concluída com sucesso!", icon="✅")
+
+        with st.spinner('Analisando vulnerabilidade na arquitetura... Por favor, aguarde.'):
 
             search_rag = search.Search()
-        
             response = search_rag.search_topic("Threat")
 
             st.subheader("Resultados da busca:")
@@ -87,17 +80,8 @@ else:
             })
             
 
-            resultado_items = chat.check_vulnerability_per_item("items", docs_para_analise)
-            with st.expander(f"🔍 Resultado da Análise item a item"):
+            resultado_items = chat.check_vulnerability_per_item(resultado, docs_para_analise)
+            with st.expander(f"🔍 Resultado da Análise de vulnerabilidade"):
                 st.write(resultado_items)
 
-            resultado_flow = chat.check_vulnerability_per_item("data-flow", docs_para_analise)
-            with st.expander(f"🔍 Resultado da Análise do fluxo de dados"):
-                st.write(resultado_flow)
-        
-
-
-
-
-
-
+    # TODO: Incluir botão para download do relatório gerado em pdf.

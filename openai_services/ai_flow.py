@@ -63,38 +63,38 @@ class Chat:
         response = stream.choices[0].message.content
         return response
     
-    def check_vulnerability_per_item(self, analysis_type, content):
+    def check_vulnerability_per_item(self, content_architeture, content_rag):
 
         """
         Faz análise STRIDE baseada em conteúdo retornado da busca.
         
         Parâmetros:
-            analysis_type (str): 'items' ou 'data-flow'
-            content (list[dict]): Lista com chaves 'id' e 'conteudo'
+            content_architeture (str): String com o fluxo da aplicação e componentes identificados
+            content_rag (list[dict]): Lista com chaves 'id' e 'conteudo'
         """
         # Construir string formatada para o prompt
         blocos_documento = []
-        for doc in content:
+        for doc in content_rag:
             bloco = f"### Documento: {doc['id']}\n{doc['conteudo']}\n"
             blocos_documento.append(bloco)
 
         content_string = "\n---\n".join(blocos_documento)
 
         prompt = f"""
-            Você está prestes a realizar uma análise de segurança com base nos documentos da OWASP relacionados à metodologia STRIDE.
+            Você está prestes a realizar uma análise de vulnerabilidade de arquitetura de sistemas em cloud com base na metodologia STRIDE.
 
             Abaixo estão os documentos relevantes que contêm diretrizes sobre ameaças e mitigações:
 
             {content_string}
 
-            Existem dois tipos de análise possíveis (entre parênteses está o parâmetro da análise):
-            1. Item a item, analisando cada componente isolado da arquitetura. (`items`)
-            2. Análise do fluxo de dados entre componentes. (`data-flow`)
+            Na sua análise considere ambos itens:
+            1. Cada componente isolado da arquitetura. {content_architeture.get("componentes_identificados", [])}
+            2. O fluxo de dados entre componentes. {content_architeture.get("fluxo_aplicacao", "Fluxo não identificado.")}
 
-            Com base no conteúdo acima, realize a análise do tipo **{analysis_type}** e forneça:
-            - As ameaças STRIDE relevantes
+            Com base no conteúdo acima, realize a análise completa e forneça:
+            - As vulnerabilidades de acordo com a metodologia STRIDE relevantes relacionadas a cada componente e fluxo de dados entre cada componente
             - As justificativas técnicas
-            - Recomendações de mitigação
+            - As contramedidas específicas para cada ameaça
             - E, se possível, uma organização em tópicos por componente ou interação.
         """
 
@@ -116,9 +116,3 @@ class Chat:
         
         response = stream.choices[0].message.content
         return response
-
-
-
-        
-
-        
