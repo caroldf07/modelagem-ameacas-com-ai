@@ -40,11 +40,11 @@ else:
         "Faça o upload da sua arquitetura (.pdf/.jpeg/.png)", type=("pdf", "jpeg", "png")
     )
     if arquitetura:
-
-        
         with st.spinner('Analisando arquitetura... Por favor, aguarde.'):
-            response = chat.read_architecture(arquitetura)  
+            response = chat.read_architecture(arquitetura)
             try:
+                response = response.replace('```','')
+                response = response.replace('json','')
                 resultado = json.loads(response)
             except json.JSONDecodeError as e:
                 st.error("Erro ao converter resposta para JSON.")
@@ -52,17 +52,18 @@ else:
                 raise e
         
         st.subheader("📦 Componentes Identificados")
-        st.write(resultado.get("componentes_identificados", []))
+        resultados_itens = resultado.get("componentes_identificados", [])
+        st.write(resultados_itens)
+
 
         st.subheader("🧠 Descrição dos Componentes")
         for componente, descricao in resultado.get("descricao_componentes", {}).items():
             st.markdown(f"**{componente}**: {descricao}")
 
         st.subheader("🔁 Fluxo da Aplicação")
-        st.write(resultado.get("fluxo_aplicacao", "Fluxo não identificado."))
+        resultados_fluxo = resultado.get("fluxo_aplicacao", [])
+        st.write(resultados_fluxo)
                     
-        # TODO: Alterar o prompt para que o retorno seja no formato que a lib de análise da OWASP precisa pra rodar.
-        # TODO: Alterar o retorno para trazer o relatório de vulnerabilidades usando a metodologia STRIDE como base.
         # TODO: Incluir botão para download do relatório gerado em pdf.
         
         st.success("Análise concluída com sucesso!", icon="✅")
@@ -87,11 +88,11 @@ else:
             })
             
 
-            resultado_items = chat.check_vulnerability_per_item("items", docs_para_analise)
+            resultado_items = chat.check_vulnerability_per_item("items", docs_para_analise, resultados_itens)
             with st.expander(f"🔍 Resultado da Análise item a item"):
                 st.write(resultado_items)
 
-            resultado_flow = chat.check_vulnerability_per_item("data-flow", docs_para_analise)
+            resultado_flow = chat.check_vulnerability_per_item("data-flow", docs_para_analise, resultados_fluxo)
             with st.expander(f"🔍 Resultado da Análise do fluxo de dados"):
                 st.write(resultado_flow)
         
