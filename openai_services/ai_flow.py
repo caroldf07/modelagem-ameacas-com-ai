@@ -100,15 +100,15 @@ class Chat:
 
 
         prompt = f"""
-            Você está prestes a realizar uma análise de segurança com base nos documentos da OWASP relacionados à metodologia STRIDE.
+            Você está prestes a realizar uma análise de vulnerabilidade de arquitetura de sistemas em cloud com base na metodologia STRIDE.
 
             Abaixo estão os documentos relevantes que contêm diretrizes sobre ameaças e mitigações:
 
             {content_doc_string}
 
-            Existem dois tipos de análise possíveis (entre parênteses está o parâmetro da análise):
-            1. Item a item, analisando cada componente isolado da arquitetura. (`items`)
-            2. Análise do fluxo de dados entre componentes. (`data-flow`)
+            Na sua análise considere ambos itens:
+            1. Cada componente isolado da arquitetura. {content_architeture.get("componentes_identificados", [])}
+            2. O fluxo de dados entre componentes. {content_architeture.get("fluxo_aplicacao", "Fluxo não identificado.")}
 
             {arch_content}
 
@@ -140,9 +140,3 @@ class Chat:
         
         response = stream.choices[0].message.content
         return response
-
-
-
-        
-
-        

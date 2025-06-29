@@ -68,10 +68,11 @@ else:
         
         st.success("Análise concluída com sucesso!", icon="✅")
 
-        with st.spinner('Analisando itens de risco baseado na metodologia OWASP... Por favor, aguarde.'):
+        st.success("Análise da arquitetura concluída com sucesso!", icon="✅")
+
+        with st.spinner('Analisando vulnerabilidade na arquitetura... Por favor, aguarde.'):
 
             search_rag = search.Search()
-        
             response = search_rag.search_topic("Threat")
 
             st.subheader("Resultados da busca:")
