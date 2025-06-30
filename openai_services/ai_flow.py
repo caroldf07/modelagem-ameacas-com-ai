@@ -1,5 +1,9 @@
 from openai import OpenAI
 import base64
+import logging
+
+# Configuração do logging
+logging.basicConfig(level=logging.INFO)
 
 class Chat:
 
@@ -64,12 +68,14 @@ class Chat:
             }
 
         ]
+        logging.info("Enviando mensagem para análise de arquitetura.")
         stream = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
             )
         
         response = stream.choices[0].message.content
+        logging.info("Análise de arquitetura concluída.")
         return response
     
     def check_vulnerability_per_item(self, analysis_type, docs_content, arch_content):
@@ -105,11 +111,8 @@ class Chat:
             Abaixo estão os documentos relevantes que contêm diretrizes sobre ameaças e mitigações:
 
             {content_doc_string}
-
-            Na sua análise considere ambos itens:
-            1. Cada componente isolado da arquitetura. {content_architeture.get("componentes_identificados", [])}
-            2. O fluxo de dados entre componentes. {content_architeture.get("fluxo_aplicacao", "Fluxo não identificado.")}
-
+            
+            Abaixo está o conteúdo da arquitetura que você deve analisar:
             {arch_content}
 
             Com base no conteúdo acima, realize a análise do tipo **{analysis_type}** e forneça:
@@ -133,10 +136,12 @@ class Chat:
                 ]
             }
         ]
+        logging.info(f"Enviando mensagem para análise de vulnerabilidade do tipo {analysis_type}.")
         stream = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
             )
         
         response = stream.choices[0].message.content
+        logging.info(f"Análise de vulnerabilidade do tipo {analysis_type} concluída.")
         return response
