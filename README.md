@@ -19,6 +19,8 @@ Entregável
 ● Vídeo de até 15 minutos explicando a solução proposta
 ● Link do Github do projeto
 
+# Documentação de desenvolvimento da solução
+Veja: `documentacao_de_desenvolvimento_da_solucao.ipynb`
 
 # Solução
 https://hackathon-pos-tech-fiap-modelagem-ameacas-com-ia.streamlit.app/
