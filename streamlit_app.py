@@ -70,40 +70,40 @@ else:
         st.write(resultados_fluxo)
         st.success("Análise da arquitetura concluída com sucesso!", icon="✅")
 
-        # with st.spinner('Analisando vulnerabilidade na arquitetura... Por favor, aguarde.'):
+        with st.spinner('Analisando vulnerabilidade na arquitetura... Por favor, aguarde.'):
 
-        #     search_rag = search.Search()
-        #     response = search_rag.search_topic("Threat")
+            search_rag = search.Search()
+            response = search_rag.search_topic("Threat")
 
-        #     docs_para_analise = []
-        #     for item in response:
-        #         docs_para_analise.append({
-        #             "id": item["id"],
-        #             "conteudo": item["conteudo"]
-        #         })
+            docs_para_analise = []
+            for item in response:
+                docs_para_analise.append({
+                    "id": item["id"],
+                    "conteudo": item["conteudo"]
+                })
 
-        #     resultado_items = chat.check_vulnerability_per_item("items", docs_para_analise, resultados_itens)
-        #     resultado_flow = chat.check_vulnerability_per_item("data-flow", docs_para_analise, resultados_fluxo)
+            resultado_items = chat.check_vulnerability_per_item("items", docs_para_analise, resultados_itens)
+            resultado_flow = chat.check_vulnerability_per_item("data-flow", docs_para_analise, resultados_fluxo)
 
-        #     st.subheader("Resultado:")
-        #     with st.expander("🔍 Análise de vulnerabilidade item a item"):
-        #         st.write(resultado_items)
+            st.subheader("Resultado:")
+            with st.expander("🔍 Análise de vulnerabilidade item a item"):
+                st.write(resultado_items)
 
-        #     with st.expander("🔍 Análise de vulnerabilidade do fluxo de dados"):
-        #         st.write(resultado_flow)
+            with st.expander("🔍 Análise de vulnerabilidade do fluxo de dados"):
+                st.write(resultado_flow)
 
-        # st.success("Análise de vulnerabilidades concluída com sucesso!", icon="✅")
+        st.success("Análise de vulnerabilidades concluída com sucesso!", icon="✅")
 
 
-        # logging.info(resultado_flow)
-        # logging.info(resultado_items)
-        # logging.info(resultados_itens)
-        # logging.info(resultados_fluxo)
-        # logging.info(resultado.get("fluxo_aplicacao", []))
-        # logging.info(resultado.get("descricao_componentes", {}))
-        # # Gerar o PDF
-        # pdf_button(resultados_itens=resultados_itens,
-        #            resultado_items=resultado_items,
-        #            resultado_flow=resultado_flow,
-        #            resultados_fluxo=resultado.get("fluxo_aplicacao", []),
-        #            descricao_componentes=resultado.get("descricao_componentes", {}))
+        logging.info(resultado_flow)
+        logging.info(resultado_items)
+        logging.info(resultados_itens)
+        logging.info(resultados_fluxo)
+        logging.info(resultado.get("fluxo_aplicacao", []))
+        logging.info(resultado.get("descricao_componentes", {}))
+        # Gerar o PDF
+        pdf_button(resultados_itens=resultados_itens,
+                   resultado_items=resultado_items,
+                   resultado_flow=resultado_flow,
+                   resultados_fluxo=resultado.get("fluxo_aplicacao", []),
+                   descricao_componentes=resultado.get("descricao_componentes", {}))
