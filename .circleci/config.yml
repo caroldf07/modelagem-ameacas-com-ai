@@ -1,0 +1,39 @@
+version: 2.1
+
+jobs:
+  security-audit:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Install pip-audit
+          command: pip install pip-audit
+      - run:
+          name: Security audit of dependencies
+          command: pip-audit -r requirements.txt --desc
+      - run:
+          name: Check for critical vulnerabilities
+          command: pip-audit -r requirements.txt --severity critical --fail-on-error 2>&1 || true
+
+  lint-and-syntax:
+    docker:
+      - image: cimg/python:3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Syntax check
+          command: python -m py_compile streamlit_app.py
+      - run:
+          name: Check all Python files
+          command: |
+            find . -name "*.py" -not -path "./.git/*" -exec python -m py_compile {} \; && echo "All syntax OK"
+
+workflows:
+  ci-cd:
+    jobs:
+      - security-audit
+      - lint-and-syntax
