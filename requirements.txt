@@ -3,7 +3,7 @@ openai==1.76.0
 azure-search-documents==11.5.2
 azure-core==1.38.0
 beautifulsoup4==4.12.3
-requests==2.33.0
+requests==2.33.1
 uuid==1.30
 reportlab==4.2.5
 Pillow==12.2.0
